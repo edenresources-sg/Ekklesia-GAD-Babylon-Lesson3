@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>巴比倫系列第三課：回歸聖經的故事線</title>
+<style>
+  :root {
+    --bg:      #1A0808;
+    --maroon:  #7D1C1C;
+    --maroon2: #5C1212;
+    --gold:    #C89B3C;
+    --cream:   #F0E6D6;
+    --muted:   #A07060;
+    --card:    #2A0F0F;
+    --red2:    #C05050;
+    --purple:  #9040A0;
+    --blue:    #508090;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #111;
+    font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
+    color: var(--cream);
+    overscroll-behavior: none;
+  }
+
+  /* ── Slide container ── */
+  .deck { width: 100%; }
+
+  .slide {
+    width: 100%;
+    min-height: 56.25vw;   /* 9/16 = 56.25%，內容多時可自動延伸 */
+    background: var(--bg);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 4% 5% 4% 6%;
+    border-bottom: 4px solid #000;
+    overflow: visible;
+    page-break-after: always;
+  }
+
+  /* left bar */
+  .slide::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 1%;
+    height: 100%;
+    background: var(--maroon);
+  }
+
+  /* title slides have full left bar + gold top/bottom */
+  .slide.title-slide::before { width: 1.8%; }
+  .slide.title-slide {
+    border-top: 7px solid var(--gold);
+    border-bottom: 7px solid var(--gold);
+  }
+  .slide.title-slide::after {
+    display: none;
+  }
+
+  /* ── Typography ── */
+  .section-label {
+    font-size: clamp(9px, 1.1vw, 13px);
+    color: var(--gold);
+    letter-spacing: .18em;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: .4em;
+  }
+
+  .slide-title {
+    font-size: clamp(16px, 2.8vw, 34px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.25;
+    margin-bottom: .6em;
+  }
+
+  .big-title {
+    font-size: clamp(24px, 4.5vw, 56px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: .3em;
+  }
+
+  .sub-gold {
+    font-size: clamp(11px, 1.4vw, 16px);
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: .3em;
+    margin-bottom: .5em;
+  }
+
+  .divider {
+    width: 20%; height: 3px;
+    background: var(--gold);
+    margin: .8em 0;
+  }
+
+  .subtitle {
+    font-size: clamp(10px, 1.35vw, 15px);
+    color: var(--cream);
+    line-height: 1.6;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--maroon);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .card-accent { height: 4px; }
+  .card-body { padding: .8em 1em; }
+  .card-title {
+    font-size: clamp(10px, 1.3vw, 14px);
+    font-weight: 700;
+    margin-bottom: .35em;
+  }
+  .card-text {
+    font-size: clamp(9px, 1.15vw, 13px);
+    line-height: 1.6;
+    color: var(--cream);
+  }
+  .card-text b { color: var(--gold); }
+  .card-text em { color: var(--muted); font-style: italic; }
+
+  /* ── Grid layouts ── */
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5%; flex: 1; }
+  .cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2%; flex: 1; }
+  .cols-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1%; }
+
+  /* ── Specific slide overrides ── */
+  .content-area { flex: 1; display: flex; flex-direction: column; gap: .8%; }
+
+  .badge {
+    display: inline-block;
+    padding: .15em .6em;
+    border-radius: 3px;
+    font-size: clamp(8px, 1.05vw, 12px);
+    font-weight: 700;
+    margin-bottom: .3em;
+  }
+
+  .result-bar {
+    padding: .25em .7em;
+    font-size: clamp(9px, 1.1vw, 12.5px);
+    font-weight: 700;
+    text-align: center;
+    margin: .4em 0;
+    color: var(--cream);
+  }
+
+  .footer-bar {
+    background: var(--maroon2);
+    border-top: 3px solid var(--gold);
+    padding: .6em 1.2em;
+    font-size: clamp(9px, 1.2vw, 13px);
+    line-height: 1.5;
+    margin-top: auto;
+  }
+  .footer-bar b { color: var(--gold); }
+
+  .arrow { color: var(--gold); font-size: 1.4em; display: flex; align-items: center; justify-content: center; }
+
+  /* quadrant arrows */
+  .flow-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex: 1;
+  }
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold); font-size: 1.6em; padding: 0 .3%;
+    flex-shrink: 0;
+  }
+
+  /* insight box */
+  .insight {
+    background: var(--card);
+    border-left: 4px solid var(--gold);
+    padding: .6em 1em;
+    font-size: clamp(9px, 1.2vw, 13.5px);
+    line-height: 1.6;
+    margin-top: .8%;
+  }
+  .insight b { color: var(--gold); }
+
+  /* comparison rows (slide 9) */
+  .row-compare {
+    display: grid;
+    grid-template-columns: 2fr auto 3fr;
+    gap: .8%;
+    align-items: center;
+  }
+  .problem-cell {
+    padding: .5em .8em;
+    font-weight: 700;
+    font-size: clamp(9px, 1.2vw, 13.5px);
+    color: var(--cream);
+    border-radius: 3px;
+  }
+  .solution-cell {
+    background: var(--maroon2);
+    border: 1px solid var(--maroon);
+    padding: .5em .8em;
+    font-size: clamp(9px, 1.2vw, 13px);
+    color: var(--cream);
+    border-radius: 3px;
+  }
+
+  /* nav dots */
+  #nav {
+    position: fixed; bottom: 1.5vh; right: 2vw;
+    display: flex; flex-direction: column; gap: 5px;
+    z-index: 999;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(200,155,60,.3);
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .dot.active { background: var(--gold); }
+
+  /* slide number */
+  .slide-num {
+    position: absolute; bottom: 1.5%; right: 2%;
+    font-size: clamp(8px, .9vw, 10px);
+    color: var(--muted);
+  }
+
+  @media print {
+    body { background: #000; }
+    .slide { border-bottom: none; page-break-after: always; }
+    #nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1  TITLE
+══════════════════════════════════════════ -->
+<div class="slide title-slide" id="s1">
+  <div style="margin-top:12%;padding-left:1%">
+    <div class="sub-gold">巴比倫系列　第三課</div>
+    <div class="big-title">回歸聖經的故事線</div>
+    <div class="divider"></div>
+    <div class="subtitle">GAD 門徒訓練系列</div>
+    <div class="subtitle">以聖經完整故事線重建末世論框架</div>
+  </div>
+  <div class="slide-num">1 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2  兩種故事
+══════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="section-label">問題所在</div>
+  <div class="slide-title">我們所繼承的，是不完整的福音</div>
+  <div class="cols-2" style="flex:1;gap:1.5%">
+
+    <div class="card" style="border-color:#C05050">
+      <div class="card-accent" style="background:#C05050"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:#E07070">舊版故事（我們繼承的）</div>
+        <div class="card-text">
+          <b>創世記三章</b>　人的墮落<br>
+          <span style="color:var(--muted);padding-left:1em">↓</span><br>
+          <b>福音書</b>　耶穌死在十字架上<br>
+          <span style="color:var(--muted);padding-left:1em">↓</span><br>
+          <b>啟示錄</b>　我們在天堂與神同在<br><br>
+          <b style="color:#E07070">核心問題：</b><br>
+          跳過舊約 99% 的內容<br>
+          以「主題」代替完整故事<br>
+          以「天堂」取代聖經的真實結局
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--gold)">
+      <div class="card-accent" style="background:var(--gold)"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:var(--gold)">聖經真實的故事</div>
+        <div class="card-text">
+          <b>一個故事，一個結局</b><br><br>
+          從創世記到啟示錄，上帝在講述一個單一的故事——不是「以色列的故事」加上「教會的故事」，而是同一個故事的展開。<br><br>
+          <b>只有一種末世論，</b><br>
+          當你把聖經當故事來讀，就只能有一個結局。
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-num">2 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3  飛機比喻
+══════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="section-label">教會歷史框架</div>
+  <div class="slide-title">飛機的比喻：四個象限</div>
+
+  <div class="cols-4" style="flex:1;gap:1%">
+    <div class="card" style="border-color:var(--gold)">
+      <div class="card-accent" style="background:var(--gold)"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(14px,2vw,22px);font-weight:900;color:var(--gold)">1</div>
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:var(--gold)">第一象限</div>
+        <div class="card-title" style="color:var(--cream)">早期教會</div>
+        <div class="card-text">在羅馬帝國逼迫下，宣講天國的福音，以殉道見證天國</div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#9060A0">
+      <div class="card-accent" style="background:#9060A0"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(14px,2vw,22px);font-weight:900;color:#9060A0">2</div>
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#9060A0">第二象限</div>
+        <div class="card-title" style="color:var(--cream)">歐洲教會</div>
+        <div class="card-text">天國意識消退，十字架取代復活，反猶太主義滋生</div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#508090">
+      <div class="card-accent" style="background:#508090"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(14px,2vw,22px);font-weight:900;color:#508090">3</div>
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#508090">第三象限</div>
+        <div class="card-title" style="color:var(--cream)">美國福音教會</div>
+        <div class="card-text">傳播個人救恩福音，天堂取代天國，輸出到全球含亞洲</div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#C05050">
+      <div class="card-accent" style="background:#C05050"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(14px,2vw,22px);font-weight:900;color:#C05050">4</div>
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#C05050">第四象限</div>
+        <div class="card-title" style="color:var(--cream)">亞洲末世教會</div>
+        <div class="card-text">必須回到正確航向，恢復天國的福音，完成大使命，迎接耶穌</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- progress arrow -->
+  <div style="height:4px;background:var(--maroon);margin:.8% 0;position:relative">
+    <span style="position:absolute;right:0;top:-8px;color:var(--gold);font-size:1.2em">▶</span>
+  </div>
+
+  <div class="insight">
+    <b>核心呼召：</b>亞洲末世教會別無選擇——飛機正在進入降落模式，必須回到正確航向。這就是為什麼我們必須把故事搞對：不是舊版本的故事，而是聖經所講述的真實故事。
+  </div>
+  <div class="slide-num">3 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4  故事起點 & 撒但起源
+══════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="section-label">聖經故事線・起點</div>
+  <div class="slide-title">故事在地上開始，不在天上</div>
+  <div class="cols-2" style="flex:1">
+
+    <div class="card" style="border-color:var(--gold)">
+      <div class="card-accent" style="background:var(--gold)"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:var(--gold)">創世記 1–2 章　起初的伊甸</div>
+        <div class="card-text">
+          <b>•</b> 天與地彼此交疊——伊甸是神聖空間<br>
+          <b>•</b> 三位一體已在地上<br>
+          <b>•</b> 上帝的眾子（Bene Elohim）目睹創造<br>
+          <b>•</b> 亞當、夏娃受命：共同攝政，將伊甸的榮耀傳遍全地<br><br>
+          <em>路西弗原是忠心服事的天上存在，他期待統治權歸給自己——但上帝把統治權給了人。</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#C05050">
+      <div class="card-accent" style="background:#C05050"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:#E07070">路西弗成為撒但——在伊甸，不在天上</div>
+        <div class="card-text">
+          <em>傳統觀念說：「路西弗在永恆中叛逆，被逐出天堂」——但聖經中找不到這個依據。</em><br><br>
+          <b>聖經所說：</b><br>
+          以賽亞書14章、以西結書28章明確指出故事發生在「伊甸」<br><br>
+          <b>那一刻：</b><br>
+          統治權交給亞當夏娃的那一刻，邪惡進入路西弗的心——<br>
+          <b style="color:#E07070">路西弗成為撒但。</b>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-num">4 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5  三次大叛亂
+══════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="section-label">聖經故事線・三次危機</div>
+  <div class="slide-title">三次大叛亂——撒但的三步策略</div>
+  <div class="cols-3" style="flex:1">
+
+    <div class="card" style="border-color:#B04040">
+      <div class="card-accent" style="background:#B04040"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#B04040">創世記 3 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(12px,1.7vw,19px)">第一次叛亂</div>
+        <div class="card-text">路西弗引誘人墮落</div>
+        <div class="result-bar" style="background:#B04040">結果：必死性（Mortality）</div>
+        <div class="card-text">
+          罪 = 死亡 = 分離<br>
+          天地分裂，三位一體離地回天<br>
+          黑暗勢力佔據中間空間
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#904040">
+      <div class="card-accent" style="background:#904040"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#904040">創世記 6 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(12px,1.7vw,19px)">第二次叛亂</div>
+        <div class="card-text">上帝的眾子取人形，生出拿非利人（巨人族）</div>
+        <div class="result-bar" style="background:#904040">結果：腐敗（Depravity）</div>
+        <div class="card-text">
+          全地暴力淫亂到達極致<br>
+          上帝以洪水重新創造（挪亞）<br>
+          泛大陸在洪水中分裂
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#703030">
+      <div class="card-accent" style="background:#703030"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#C07070">創世記 11 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(12px,1.7vw,19px)">第三次叛亂</div>
+        <div class="card-text">寧錄建巴別塔（第一個敵基督原型）</div>
+        <div class="result-bar" style="background:#703030">結果：拜偶像（Idolatry）</div>
+        <div class="card-text">
+          「巴別」靈/制度/結構誕生<br>
+          萬國假神誕生，假曆法、假敬拜<br>
+          「萬國的故事」從此開始
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer-bar">
+    <b>上帝的回應（創世記 12 章）：</b>　呼召亞伯拉罕，建立以色列——目的：透過以色列，召回萬國，救贖萬國，恢復萬國。
+  </div>
+  <div class="slide-num">5 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6  邪惡三位一體 & 巴比倫
+══════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="section-label">末世框架・啟示錄 12–18 章</div>
+  <div class="slide-title">邪惡三位一體與巴比倫體系</div>
+
+  <div class="cols-3" style="gap:1.2%;margin-bottom:.8%">
+    <div class="card" style="border-color:#9C2020">
+      <div class="card-accent" style="background:#9C2020"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);color:#9C2020;font-weight:700">啟示錄 12 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(13px,1.8vw,20px)">龍 / 撒但</div>
+        <div class="card-text">指揮者</div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#7D3020">
+      <div class="card-accent" style="background:#7D3020"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);color:#C08060;font-weight:700">啟示錄 13 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(13px,1.8vw,20px)">第一頭獸・敵基督</div>
+        <div class="card-text">執行者：<b>瑪門</b></div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#7D2040">
+      <div class="card-accent" style="background:#7D2040"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);color:#C06080;font-weight:700">啟示錄 13 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(13px,1.8vw,20px)">第二頭獸・假先知</div>
+        <div class="card-text">執行者：<b>欺騙</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:3px;background:var(--maroon);margin:.3% 0"></div>
+  <div style="font-size:clamp(9px,1.2vw,13px);font-weight:700;color:var(--gold);margin:.3% 0">
+    巴比倫——創世記 11 章「巴別」種子的完全成熟（啟示錄 17–18 章）
+  </div>
+
+  <div class="cols-2" style="flex:1;gap:1.2%">
+    <div class="card" style="border-color:#9040A0">
+      <div class="card-accent" style="background:#9040A0"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:#C070D0">啟示錄 17 章　宗教性巴比倫</div>
+        <div class="card-text">
+          由 <b>假先知</b> 領導<br>
+          工具：<b style="color:#E070A0">欺騙（Deception）</b><br>
+          欺騙萬國，使其誤認偶像為真神
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#8060A0">
+      <div class="card-accent" style="background:#8060A0"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:#B090D0">啟示錄 18 章　商業性巴比倫</div>
+        <div class="card-text">
+          由 <b>敵基督</b> 領導<br>
+          工具：<b style="color:#E0B070">瑪門（Mammon）</b><br>
+          透過金融商業體系對萬國行使統治
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">6 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7  哈米吉多頓
+══════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="section-label">啟示錄 19 章</div>
+  <div class="slide-title">哈米吉多頓——真正的戰爭</div>
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1.5%;flex:1;align-items:stretch">
+
+    <div class="card" style="border-color:#6080A0">
+      <div class="card-accent" style="background:#6080A0"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:#90B0D0">出埃及記的戰爭模式</div>
+        <div class="card-text">
+          <b>自然層面：</b><br>
+          摩西　對抗　法老<br><br>
+          <b>超自然層面：</b><br>
+          以色列的上帝　對抗　埃及諸神<br><br>
+          <b>決定因素：</b><br>
+          超自然的戰爭決定自然層面的勝負。以色列的上帝審判埃及諸神，法老因此在自然層面失敗。
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow" style="font-size:clamp(18px,2.5vw,30px)">→</div>
+
+    <div class="card" style="border-color:#C05050">
+      <div class="card-accent" style="background:#C05050"></div>
+      <div class="card-body">
+        <div class="card-title" style="color:#E07070">啟示錄 19 章：同一模式，更大規模</div>
+        <div class="card-text">
+          <b>自然層面：</b><br>
+          耶穌　對抗　敵基督<br><br>
+          <b>超自然層面：</b><br>
+          以色列的上帝　對抗　所有萬國的神明<br><br>
+          <b>結果：</b><br>
+          敵基督滅亡；萬國所有神明全部滅亡——從此不再有欺騙，不再有假神。那是他們的故事走向終結的時刻。
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-num">7 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8  故事的結局
+══════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="section-label">啟示錄 20–22 章</div>
+  <div class="slide-title">故事的真實結局：三位一體回到地上</div>
+  <div class="cols-3" style="flex:1">
+
+    <div class="card" style="border-color:var(--gold)">
+      <div class="card-accent" style="background:var(--gold)"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:var(--gold)">啟示錄 20 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(13px,1.8vw,21px)">千禧年</div>
+        <div class="card-text">
+          耶穌從耶路撒冷統治一千年<br>
+          萬國的神明已滅，不再有欺騙<br>
+          耶穌訓練萬國成為門徒<br>
+          消滅最後仇敵：死亡
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#90C0E0">
+      <div class="card-accent" style="background:#90C0E0"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#90C0E0">啟示錄 21 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(13px,1.8vw,21px)">天父降臨地球</div>
+        <div class="card-text">
+          聖靈（使徒行傳2章）已與我們同在<br>
+          耶穌永久進駐耶路撒冷<br>
+          天父降臨地球，永遠同住<br>
+          三位一體完全在地上
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:#60B080">
+      <div class="card-accent" style="background:#60B080"></div>
+      <div class="card-body">
+        <div style="font-size:clamp(8px,1vw,11px);font-weight:700;color:#60B080">啟示錄 22 章</div>
+        <div class="card-title" style="color:var(--cream);font-size:clamp(13px,1.8vw,21px)">伊甸 2.0・萬國得醫治</div>
+        <div class="card-text">
+          故事回到起點，但更偉大<br>
+          伊甸從種子成長為大樹<br>
+          生命樹的葉子醫治萬國<br>
+          萬國將榮耀獻給耶穌
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-num">8 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9  三次叛亂的解決
+══════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="section-label">總結</div>
+  <div class="slide-title">三次叛亂的解決 & 信仰驅動的末世論</div>
+
+  <div style="display:flex;flex-direction:column;gap:1.5%;flex:1">
+    <div class="row-compare">
+      <div class="problem-cell" style="background:#B04040">創 3　必死性</div>
+      <div class="arrow" style="font-size:1.3em">→</div>
+      <div class="solution-cell">啟示錄 20 章：耶穌消滅死亡——最後一個仇敵</div>
+    </div>
+    <div class="row-compare">
+      <div class="problem-cell" style="background:#904040">創 6　腐敗淫亂</div>
+      <div class="arrow" style="font-size:1.3em">→</div>
+      <div class="solution-cell">啟示錄 19 章：哈米吉多頓，萬國之神全部滅亡</div>
+    </div>
+    <div class="row-compare">
+      <div class="problem-cell" style="background:#703030">創 11　拜偶像</div>
+      <div class="arrow" style="font-size:1.3em">→</div>
+      <div class="solution-cell">啟示錄 19–20 章：偶像崇拜的根源徹底終結</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:var(--gold);margin-top:1.5%">
+    <div class="card-accent" style="background:var(--gold)"></div>
+    <div class="card-body">
+      <div class="card-title" style="color:var(--gold);font-size:clamp(11px,1.5vw,17px)">信仰驅動的末世論（Faith-Driven Eschatology）</div>
+      <div class="card-text">
+        聖經的末世不是逃跑的故事，而是得勝的故事。故事以萬國的醫治結束，以三位一體永遠住在地球上結束——充滿盼望，充滿信心，不是恐懼。
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">9 / 10</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10  結語
+══════════════════════════════════════════ -->
+<div class="slide title-slide" id="s10">
+  <div style="margin-top:10%;padding-left:1%">
+    <div class="sub-gold">一句話總結</div>
+    <div class="big-title" style="font-size:clamp(20px,3.8vw,46px)">
+      聖經是一個故事，<br>從伊甸開始，回到伊甸。
+    </div>
+    <div class="divider"></div>
+    <div class="subtitle" style="color:var(--muted)">
+      天與地分離（創 3）<br>
+      <span style="color:var(--maroon);padding-left:1em">↓　以色列・耶穌・教會　↓</span><br>
+      <span style="color:var(--cream);font-weight:700">天與地永遠合一（啟 21–22）</span>
+    </div>
+    <br>
+    <div class="subtitle" style="color:var(--muted);font-style:italic">
+      願亞洲末世教會選擇傳講天國的福音，<br>
+      使萬國成為門徒，迎接耶穌再來。
+    </div>
+  </div>
+  <div class="slide-num">10 / 10</div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- nav dots -->
+<div id="nav">
+  <div class="dot active" onclick="scrollTo('s1')"></div>
+  <div class="dot" onclick="scrollTo('s2')"></div>
+  <div class="dot" onclick="scrollTo('s3')"></div>
+  <div class="dot" onclick="scrollTo('s4')"></div>
+  <div class="dot" onclick="scrollTo('s5')"></div>
+  <div class="dot" onclick="scrollTo('s6')"></div>
+  <div class="dot" onclick="scrollTo('s7')"></div>
+  <div class="dot" onclick="scrollTo('s8')"></div>
+  <div class="dot" onclick="scrollTo('s9')"></div>
+  <div class="dot" onclick="scrollTo('s10')"></div>
+</div>
+
+<script>
+  function scrollTo(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // update active dot on scroll
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dots   = Array.from(document.querySelectorAll('.dot'));
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const i = slides.indexOf(e.target);
+        dots.forEach((d, di) => d.classList.toggle('active', di === i));
+      }
+    });
+  }, { threshold: 0.5 });
+
+  slides.forEach(s => obs.observe(s));
+
+  // keyboard nav
+  document.addEventListener('keydown', e => {
+    const cur = slides.findIndex(s => {
+      const r = s.getBoundingClientRect();
+      return r.top >= -r.height/2 && r.top <= r.height/2;
+    });
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') scrollTo(slides[Math.min(cur+1,9)].id);
+    if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  scrollTo(slides[Math.max(cur-1,0)].id);
+  });
+</script>
+</body>
+</html>
